@@ -1,5 +1,6 @@
 /**
  * JSONViewer - by Roman Makudera 2016 (c) MIT licence.
+ * modifications and fixes - by Christian Grotheer 2022 (c) MIT licence.
  */
 var JSONViewer = (function(document) {
 	var Object_prototype_toString = ({}).toString;
@@ -54,13 +55,15 @@ var JSONViewer = (function(document) {
 			var isCollapse = colAt >= 0 && lvl >= colAt;
 			
 			var isArray = Array.isArray(realValue);
+			var itemTypeName = _createTypeName(realValue)
+			delete realValue._type
 			var items = isArray ? realValue : Object.keys(realValue);
 
 			if (lvl === 0) {
 				// root level
 				var rootCount = _createItemsCount(items.length);
 				// hide/show
-				var rootLink = _createLink(isArray ? "[" : "{");
+				var rootLink = _createLink(isArray ? "[" : "{" + itemTypeName);
 
 				if (items.length) {
 					rootLink.addEventListener("click", function() {
@@ -104,16 +107,21 @@ var JSONViewer = (function(document) {
 						}
 						// array & object
 						else {
+							itemTypeName = _createTypeName(item)
+							delete item._type
+
 							var itemIsArray = Array.isArray(item);
 							var itemLen = itemIsArray ? item.length : Object.keys(item).length;
 
-							// empty
-							if (!itemLen) {
-								li.appendChild(document.createTextNode(key + ": " + (itemIsArray ? "[]" : "{}")));
-							}
-							else {
-								// 1+ items
+							// // empty
+							// if (!itemLen) {
+							// 	var itemTitle = typeof key === "string" ? key + ": " : "" + (itemIsArray ? "[]" : "{}");
+							// 	li.appendChild(document.createTextNode(itemTitle));
+							// }
+							// else {
+							// 	// 1+ items
 								var itemTitle = (typeof key === "string" ? key + ": " : "") + (itemIsArray ? "[" : "{");
+								itemTitle += itemTypeName;
 								var itemLink = _createLink(itemTitle);
 								var itemsCount = _createItemsCount(itemLen);
 
@@ -143,7 +151,7 @@ var JSONViewer = (function(document) {
 								if (colAt >= 0 && lvl + 1 >= colAt) {
 									itemLinkCb();
 								}
-							}
+							// }
 						}
 					}
 					// simple values
@@ -223,6 +231,16 @@ var JSONViewer = (function(document) {
 
 		return spanEl;
 	};
+
+	function _createTypeName(item) {
+		if (Array.isArray(item)) {
+			return ''
+		}
+		var typeName = document.createElement("span");
+		typeName.className = "items-ph";
+		typeName.innerHTML = item._type;
+		return typeName.outerHTML;
+	}
 
 	/**
 	 * Create items count element.

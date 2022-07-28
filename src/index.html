@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Test page</title>
+	<script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script type="text/javascript" src="./json-viewer.js"></script>
+	<link rel="stylesheet" type="text/css" href="./json-viewer.css">
+</head>
+<body>
+	<h1>Python class structure</h1>
+	<div id="json"></div>
+	<script>
+		var jsonViewer = new JSONViewer();
+		document.querySelector("#json").appendChild(jsonViewer.getContainer());
+		$.get("./configuration.txt", function(data) {
+			// do not use *.json file extension bcause jQuery cannot handle NaN or Inifinity values
+			json = JSON5.parse(data); // use JSON5 parser to allow 'extended' JSON format
+			jsonViewer.showJSON(json);
+		});
+	</script>
+</body>
+</html>
